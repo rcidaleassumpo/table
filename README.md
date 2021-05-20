@@ -1,46 +1,67 @@
-# Getting Started with Create React App
+- Aggregation of the data would be done in whatever is the module responsible to get the Data. There should have a method where 
+you would call it which would probably return a Promise.all of whatever is the aggragated that you need. 
+- I would suggest for any state that requires fetching, to use react-query. It has a lot of useful features like error retry
+auto chaching, and others.
+- The Table component should be extracted to it's own place, where the logic on how to handle the internals of a table should be hidden of the caller of `Table`
+- You could create a model that creates a shape todo from the API call, something like Todo.toTable(), and that would return the 
+  shape necessary to render the `Table` { headers: [], dataRow: [string[]] }
+- I would suggest to go with react-table if you want to build more advanced tables, is a solid library and you wouldn't be reinventing the wheel.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The main idea is to "never" have logic inside of a component that is from a domain object, like Todo, Post, Contract, whatever is that you are working on. 
 
-## Available Scripts
+useEffect, normally used when you need to so a `side Effect` like api calls, otherwise I would use useMemo(to be used when you need to compute a value based on something else.)
 
-In the project directory, you can run:
+So instead of this:
 
-### `yarn start`
+const [a, setA] = useState()
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+useEffect(() => {
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+  setA(newValue)
+}, [dependency])
 
-### `yarn test`
+Do this:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+const a = useMemo(() => newValue, [dependency])
 
-### `yarn build`
+The example is very simplistic, but the idea hopefully is understandable
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+useLayoutEffect:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+React Context was created to solve the prop drilling(passing props down the tree)  (in a APP where you have A/B/C)
+in order for A to pass value to C, then you need to pass the prop from A, to B, to then C, which is not ideal, so instead,
+we can solve by first creating a context,
 
-### `yarn eject`
+context = React.createContext(), pass optional initial value
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Than have a wrapper <Contenxt.Provider value={}>
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Then, down the tree, you would access the value with 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+useContext(context) (the one you just created...)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+// USE LAYOUT EFFECT 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The signature is identical to useEffect, but it fires synchronously after all DOM mutations. Use this to read layout from the DOM and synchronously re-render. Updates scheduled inside useLayoutEffect will be flushed synchronously, before the browser has a chance to paint.
+
+Prefer the standard useEffect when possible to avoid blocking visual updates.
+
+I never used this one. And I don't really see that being the case in any Application, that is probably something that a library would use.
+
+
+
+useRef
+// normally used to get a hold of form inputs 
+// or make things immutables , to avoid rerenders
+
+useCallback
+I don't normally use it, and I'm feel like if you build you application in a modular way, and keep function returning value, 
+which means that you can keep the function outside of the scope of the Component, then you wouldn't need to use useCallback,
+
+
+React Portal, 
+I have use the Vue Portals, and it seemed pretty straightforward, but the main idea is to handle the problem that arises with Modal
+layouts, so I would imagine that React Portal is the same thing.
