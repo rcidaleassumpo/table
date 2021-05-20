@@ -1,24 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { getAll } from "./API";
 
 function App() {
+  const [headerData, setHeaderData] = useState<string[]>([]);
+  const [bodyData, setBodyData] = useState<Array<string[]>>([]);
+
+  useEffect(() => {
+    getAll().then((values) => {
+      setHeaderData(Object.keys(values[0]));
+
+      setBodyData(
+        values.map((value) => {
+          return Object.values(value);
+        })
+      );
+    });
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <table>
+        <thead>
+          <tr>
+            {headerData.map((headerValue, ind) => {
+              return <th key={ind}>{headerValue}</th>;
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {bodyData.map((bodyD, ind) => {
+            return (
+              <tr key={ind}>
+                {bodyD.map((b, ind) => (
+                  <td key={ind}>{b.toString()}</td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
